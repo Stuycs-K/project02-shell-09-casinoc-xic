@@ -22,6 +22,8 @@ int main(int argc, char *argv[]){
   char buffer[200];
   char * ptr = buffer;
   fgets(ptr, 200, stdin);
-  printf("buffer: %s\n", ptr);
+  int semicolon = semicolon_counter(ptr);
+  char ** commands;
+  printf("buffer: %s semicolon: %d\n", ptr, test);
   return 0;
 }
