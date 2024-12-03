@@ -23,7 +23,23 @@ int main(int argc, char *argv[]){
   char * ptr = buffer;
   fgets(ptr, 200, stdin);
   int semicolon = semicolon_counter(ptr);
-  char ** commands;
-  printf("buffer: %s semicolon: %d\n", ptr, test);
+  char *arr[semicolon];
+  for(int i = 0; i<=semicolon; i++){
+    arr[i] = strsep(&ptr, ";");
+    printf("%s", arr[i]);
+    pid_t command = fork();
+    if(command < 0){
+      perror("fork fail");
+      exit(1);
+    }
+    else if(command == 0){ //child command
+
+    }
+
+    else{ //parent
+      int *status;
+      wait(status);
+    }
+  }
   return 0;
 }
