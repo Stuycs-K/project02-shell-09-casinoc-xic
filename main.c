@@ -42,14 +42,16 @@ int main(int argc, char *argv[]){
   char *arr[semicolon];
   for(int i = 0; i<=semicolon; i++){
     arr[i] = strsep(&ptr, ";");
-    printf("%s", arr[i]);
+  //  printf("%s", arr[i]);
     pid_t command = fork();
     if(command < 0){
       perror("fork fail");
       exit(1);
     }
     else if(command == 0){ //child command
-
+      char *arg_ary[20];
+      parse_args(arr[i], arg_ary);
+      execvp(arg_ary[0], arg_ary);
     }
 
     else{ //parent
