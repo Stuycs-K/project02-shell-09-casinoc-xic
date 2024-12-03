@@ -7,8 +7,14 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-int char_counter(char * str){
-  for(int i = 0; i < strlen(str); )
+int semicolon_counter(char * str){
+  int num = 0;
+  for(int i = 0; i < strlen(str); i++){
+    if(str[i] == ';'){
+      num++;
+    }
+  }
+  return num;
 }
 
 int main(int argc, char *argv[]){
