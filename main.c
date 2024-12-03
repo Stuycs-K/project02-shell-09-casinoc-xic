@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include "main.h"
 
 int semicolon_counter(char * str){
   int num = 0;
