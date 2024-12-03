@@ -8,6 +8,22 @@
 #include <errno.h>
 #include "main.h"
 
+void parse_args(char * line, char ** arg_ary){
+  char * token;
+  char * curr = line;
+  token = strsep(&curr, " ");
+  arg_ary[0] = token;
+  int i = 1;
+  while(i < 99) {
+    token = strsep(&curr, " ");
+    if(token == NULL){
+      break;
+    }
+    arg_ary[i] = token;
+    i++;
+  }
+}
+
 int semicolon_counter(char * str){
   int num = 0;
   for(int i = 0; i < strlen(str); i++){
