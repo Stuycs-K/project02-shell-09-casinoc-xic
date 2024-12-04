@@ -50,12 +50,12 @@ int main(int argc, char *argv[]){
     printf(">>>");
     char input_buffer[200];
     char * input = input_buffer;
-    input = calloc(200, 1);
     fgets(input, 200, stdin);
     input[strlen(input)-1] = '\0';
 
     // Parse the input.
-    char *parsed_input[20];
+    char ** parsed_input;
+    parsed_input = calloc(200, 1);
     parse_args(input, parsed_input);
 
     // Handle exiting.
@@ -82,7 +82,6 @@ int main(int argc, char *argv[]){
           //printf("Command: %s", arg_ary[0]);
           //printf("%s\n", arg_ary[1]);
           execvp(parsed_input[0], parsed_input);
-          free(input);
           exit(0);
         }
 
@@ -91,6 +90,7 @@ int main(int argc, char *argv[]){
           wait(status);
         }
     }
+    free(parsed_input);
   }       
   return 0;
 }
