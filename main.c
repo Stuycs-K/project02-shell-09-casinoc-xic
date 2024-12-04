@@ -36,55 +36,64 @@ int semicolon_counter(char * str){
 }
 
 int main(int argc, char *argv[]){
-  for(int j=0; j<5; j++){
+  while(1){
 
     // Get user input.
     printf(">>>");
     char input_buffer[200];
     char * input = input_buffer;
-
     if(fgets(input, 200, stdin) == NULL){
       printf("\n");
       exit(0);
     }
     input[strlen(input)-1] = '\0';
 
-    // Parse the input.
-    char ** parsed_input;
-    parsed_input = calloc(200, 1);
-    parse_args(input, parsed_input);
+    do{
 
-    // Handle exiting.
-    if(strcmp(parsed_input[0],"exit") == 0){
-      exit(0);
-    }
-  
-    //int semicolon = semicolon_counter(input) + 1;
-    //char *arr[semicolon];
-    for(int i = 0; i<1; i++){
-        //arr[i] = strsep(&input, ";");
-        //printf("%lu\n", strlen(arr[i]));
-        //printf("%s\n", arr[i]);
-        pid_t command = fork();
-        if(command < 0){
-          perror("fork fail");
-          exit(1);
-        }
-        else if(command == 0){ //child command
-          //char *arg_ary[20];
-          //parse_args(arr[i], arg_ary);
-          //printf("Command: %s", arg_ary[0]);
-          //printf("%s\n", arg_ary[1]);
-          execvp(parsed_input[0], parsed_input);
-          exit(0);
-        }
+      // Get the next command.
+      char * command;
+      command = strsep(&input, ";");
 
-        else{ //parent
-          int *status;
-          wait(status);
-        }
+      // Break if command is the last command.
+
+      // Parse the command.
+      char ** parsed_input;
+      parsed_input = calloc(200, 1);
+      parse_args(input, parsed_input);
+
+      // Handle exiting.
+      if(strcmp(parsed_input[0],"exit") == 0){
+        exit(0);
+      }
+    
+      int semicolon = semicolon_counter(input) + 1;
+      char *arr[semicolon];
+
+      for(int i = 0; i<1; i++){
+          arr[i] = strsep(&input, ";");
+          printf("%lu\n", strlen(arr[i]));
+          printf("%s\n", arr[i]);
+          pid_t command = fork();
+          if(command < 0){
+            perror("fork fail");
+            exit(1);
+          }
+          else if(command == 0){ //child command
+            char *arg_ary[20];
+            parse_args(arr[i], arg_ary);
+            printf("Command: %s", arg_ary[0]);
+            printf("%s\n", arg_ary[1]);
+            execvp(parsed_input[0], parsed_input);
+            exit(0);
+          }
+
+          else{ //parent
+            int *status;
+            wait(status);
+          }
+      }
+      free(parsed_input);
     }
-    free(parsed_input);
-  }       
+  } 
   return 0;
 }
