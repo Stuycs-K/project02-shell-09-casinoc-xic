@@ -24,6 +24,12 @@ void parse_args(char * line, char ** arg_ary){
   }
 }
 
+static void sighandler(int signo){
+  if(signo == SIGQUIT){
+    exit(0);
+  }
+}
+
 int semicolon_counter(char * str){
   int num = 0;
   for(int i = 0; i < strlen(str); i++){
@@ -40,10 +46,16 @@ int main(int argc, char *argv[]){
     char buffer[200];
     char * ptr = buffer;
     fgets(ptr, 200, stdin);
+    char *initial[20];
+    parse_args(ptr, initial);
+    if(strcmp(initial[0],"exit") == 0){
+      exit(0);
+    }
+    signal(SIGQUIT, sighandler);
     int semicolon = semicolon_counter(ptr) + 1;
     char *arr[semicolon];
     ptr[strlen(ptr)-1] = '\0';
-    for(int i = 0; i<semicolon; i++){
+    for(int i = 0; i<1; i++){
         arr[i] = strsep(&ptr, ";");
         //printf("%lu\n", strlen(arr[i]));
         //printf("%s\n", arr[i]);
