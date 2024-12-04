@@ -50,7 +50,7 @@ int main(int argc, char *argv[]){
     printf(">>>");
     char input_buffer[200];
     char * input = input_buffer;
-    input = malloc(200);
+    input = calloc(200, 1);
     fgets(input, 200, stdin);
     input[strlen(input)-1] = '\0';
 
