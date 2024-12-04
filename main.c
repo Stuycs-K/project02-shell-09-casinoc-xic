@@ -25,14 +25,6 @@ void parse_args(char * line, char ** arg_ary){
   }
 }
 
-static void sighandler(int signo){
-  printf("SIGHANDLER");
-  if(signo == SIGQUIT){
-    printf("SIGHANDLER_IF");
-    exit(0);
-  }
-}
-
 int semicolon_counter(char * str){
   int num = 0;
   for(int i = 0; i < strlen(str); i++){
@@ -44,13 +36,17 @@ int semicolon_counter(char * str){
 }
 
 int main(int argc, char *argv[]){
-  while(1){
+  for(int j=0; j<5; j++){
 
     // Get user input.
     printf(">>>");
     char input_buffer[200];
     char * input = input_buffer;
-    fgets(input, 200, stdin);
+
+    if(fgets(input, 200, stdin) == NULL){
+      printf("\n");
+      exit(0);
+    }
     input[strlen(input)-1] = '\0';
 
     // Parse the input.
@@ -62,8 +58,6 @@ int main(int argc, char *argv[]){
     if(strcmp(parsed_input[0],"exit") == 0){
       exit(0);
     }
-    signal(SIGQUIT, sighandler);
-
   
     //int semicolon = semicolon_counter(input) + 1;
     //char *arr[semicolon];
