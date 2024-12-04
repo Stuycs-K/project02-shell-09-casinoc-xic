@@ -57,7 +57,7 @@ int main(int argc, char *argv[]){
       if(strcmp(parsed_command[0],"exit") == 0){
         exit(0);
       }
-      
+
       // Run the command with a fork.
       pid_t child = fork();
       if(child < 0){
@@ -65,8 +65,15 @@ int main(int argc, char *argv[]){
         exit(1);
       }
       else if(child == 0){ //child command
-        execvp(parsed_command[0], parsed_command);
-        exit(0);
+        if(strcmp(parsed_command[0], "cd") == 0){ //cd
+          printf("cd called\n");
+          chdir(parsed_command[1]);
+          exit(0);
+        }
+        else{
+          execvp(parsed_command[0], parsed_command);
+          exit(0);
+        }
       }
 
       else{ //parent
