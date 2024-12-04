@@ -26,7 +26,9 @@ void parse_args(char * line, char ** arg_ary){
 }
 
 static void sighandler(int signo){
+  printf("SIGHANDLER");
   if(signo == SIGQUIT){
+    printf("SIGHANDLER_IF");
     exit(0);
   }
 }
@@ -43,21 +45,29 @@ int semicolon_counter(char * str){
 
 int main(int argc, char *argv[]){
   while(1){
+
+    // Get user input.
     printf(">>>");
-    char buffer[200];
-    char * ptr = buffer;
-    fgets(ptr, 200, stdin);
-    char *initial[20];
-    parse_args(ptr, initial);
-    if(strcmp(initial[0],"exit") == 0){
+    char input_buffer[200];
+    char * input = input_buffer;
+    fgets(input, 200, stdin);
+
+    // Parse the input.
+    char *parsed_input[20];
+    parse_args(input, parsed_input);
+
+    // Handle exiting.
+    if(strcmp(parsed_input[0],"exit") == 0){
       exit(0);
     }
     signal(SIGQUIT, sighandler);
-    int semicolon = semicolon_counter(ptr) + 1;
+
+  
+    int semicolon = semicolon_counter(input) + 1;
     char *arr[semicolon];
-    ptr[strlen(ptr)-1] = '\0';
+    input[strlen(input)-1] = '\0';
     for(int i = 0; i<1; i++){
-        arr[i] = strsep(&ptr, ";");
+        arr[i] = strsep(&input, ";");
         //printf("%lu\n", strlen(arr[i]));
         //printf("%s\n", arr[i]);
         pid_t command = fork();
@@ -66,11 +76,12 @@ int main(int argc, char *argv[]){
           exit(1);
         }
         else if(command == 0){ //child command
-          char *arg_ary[20];
-          parse_args(arr[i], arg_ary);
+          //char *arg_ary[20];
+          //parse_args(arr[i], arg_ary);
           //printf("Command: %s", arg_ary[0]);
           //printf("%s\n", arg_ary[1]);
-          execvp(arg_ary[0], arg_ary);
+          execvp(parsed_input[0], parsed_input);
+          exit(0);
         }
 
         else{ //parent
@@ -78,8 +89,6 @@ int main(int argc, char *argv[]){
           wait(status);
         }
     }
-  }
-}
-       
+  }       
   return 0;
 }
