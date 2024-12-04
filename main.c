@@ -25,16 +25,6 @@ void parse_args(char * line, char ** arg_ary){
   }
 }
 
-int semicolon_counter(char * str){
-  int num = 0;
-  for(int i = 0; i < strlen(str); i++){
-    if(str[i] == ';'){
-      num++;
-    }
-  }
-  return num;
-}
-
 int main(int argc, char *argv[]){
   while(1){
 
@@ -57,7 +47,6 @@ int main(int argc, char *argv[]){
       if(command == NULL){
         break;
       }
-      // Break if command is the last command.
 
       // Parse the command.
       char ** parsed_command;
