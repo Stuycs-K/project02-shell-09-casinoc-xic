@@ -47,53 +47,45 @@ int main(int argc, char *argv[]){
       exit(0);
     }
     input[strlen(input)-1] = '\0';
+    char * command;
 
-    do{
+    // Loop through commands and break if command is NULL.
+    while(1){
 
       // Get the next command.
-      char * command;
       command = strsep(&input, ";");
-
+      if(command == NULL){
+        break;
+      }
       // Break if command is the last command.
 
       // Parse the command.
-      char ** parsed_input;
-      parsed_input = calloc(200, 1);
-      parse_args(input, parsed_input);
+      char ** parsed_command;
+      parsed_command = calloc(200, 1);
+      parse_args(command, parsed_command);
 
       // Handle exiting.
-      if(strcmp(parsed_input[0],"exit") == 0){
+      if(strcmp(parsed_command[0],"exit") == 0){
         exit(0);
       }
-    
-      int semicolon = semicolon_counter(input) + 1;
-      char *arr[semicolon];
-
-      for(int i = 0; i<1; i++){
-          arr[i] = strsep(&input, ";");
-          printf("%lu\n", strlen(arr[i]));
-          printf("%s\n", arr[i]);
-          pid_t command = fork();
-          if(command < 0){
-            perror("fork fail");
-            exit(1);
-          }
-          else if(command == 0){ //child command
-            char *arg_ary[20];
-            parse_args(arr[i], arg_ary);
-            printf("Command: %s", arg_ary[0]);
-            printf("%s\n", arg_ary[1]);
-            execvp(parsed_input[0], parsed_input);
-            exit(0);
-          }
-
-          else{ //parent
-            int *status;
-            wait(status);
-          }
+      
+      // Run the command with a fork.
+      pid_t child = fork();
+      if(child < 0){
+        perror("fork fail");
+        exit(1);
       }
-      free(parsed_input);
+      else if(child == 0){ //child command
+        execvp(parsed_command[0], parsed_command);
+        exit(0);
+      }
+
+      else{ //parent
+        int *status;
+        wait(status);
+      }
+      free(parsed_command);
     }
-  } 
+  }
   return 0;
 }
