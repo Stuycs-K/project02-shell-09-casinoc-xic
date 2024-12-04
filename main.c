@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
@@ -29,7 +30,8 @@ int main(int argc, char *argv[]){
   while(1){
 
     // Get user input.
-    printf(">>>");
+    
+    fflush(stdout);
     char input_buffer[200];
     char * input = input_buffer;
     if(fgets(input, 200, stdin) == NULL){
