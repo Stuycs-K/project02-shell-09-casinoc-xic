@@ -50,7 +50,9 @@ int main(int argc, char *argv[]){
     printf(">>>");
     char input_buffer[200];
     char * input = input_buffer;
+    input = malloc(200);
     fgets(input, 200, stdin);
+    input[strlen(input)-1] = '\0';
 
     // Parse the input.
     char *parsed_input[20];
@@ -63,11 +65,10 @@ int main(int argc, char *argv[]){
     signal(SIGQUIT, sighandler);
 
   
-    int semicolon = semicolon_counter(input) + 1;
-    char *arr[semicolon];
-    input[strlen(input)-1] = '\0';
+    //int semicolon = semicolon_counter(input) + 1;
+    //char *arr[semicolon];
     for(int i = 0; i<1; i++){
-        arr[i] = strsep(&input, ";");
+        //arr[i] = strsep(&input, ";");
         //printf("%lu\n", strlen(arr[i]));
         //printf("%s\n", arr[i]);
         pid_t command = fork();
@@ -81,6 +82,7 @@ int main(int argc, char *argv[]){
           //printf("Command: %s", arg_ary[0]);
           //printf("%s\n", arg_ary[1]);
           execvp(parsed_input[0], parsed_input);
+          free(input);
           exit(0);
         }
 
