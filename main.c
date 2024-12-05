@@ -81,8 +81,8 @@ int main(int argc, char *argv[]){
       }
 
       else{ //parent
-        int *status;
-        wait(status);
+        int status;
+        wait(&status);
       }
       free(parsed_command);
     }
