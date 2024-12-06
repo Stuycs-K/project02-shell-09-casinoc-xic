@@ -8,5 +8,6 @@
 ## Shell Implementations
 1. Printing out the path of the current directory that the user is in before each command line prompt
 2. All the general functionality commands like ls or echo
-3. Changing directories using cd
-4. Exiting using both the exit command and the CTRL-D signal
+3. Multiple commands separated by semicolons
+4. Changing directories using cd
+5. Exiting using both the exit command and the CTRL-D signal
