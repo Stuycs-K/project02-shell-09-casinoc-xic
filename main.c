@@ -53,13 +53,32 @@ int main(int argc, char *argv[]){
         break;
       }
 
-      // Redirect output to file.
+      // Create backup for stdout and command.
+      int stdout = 1;
+      int backup_stdout = dup(stdout);
+      char command_copy[100];
+      strcpy(command, command_copy);
+
+      // Redirect output to file with truncating.
       char * stripped_command = strsep(&command, ">");
       char * filename = strsep(&command, ">");
+      char output_redirected = 0;
+      filename++;
       if (filename != NULL){
+        output_redirected = 1;
         int fd1 = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-        int stdout = 1;
         dup2(fd1, stdout);
+      }
+
+      // Redirect output to file with appending.
+      if(!output_redirected){
+        char * stripped_command = strsep(&command_copy, ">>");
+        char * filename = strsep(&command_copy, ">>");
+        filename++;
+        if (filename != NULL){
+          int fd1 = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
+          dup2(fd1, stdout);
+        }
       }
       
       // Parse the command.
@@ -92,6 +111,7 @@ int main(int argc, char *argv[]){
       else{ //parent
         int status;
         wait(&status);
+        dup2(backup_stdout, stdout);
       }
       free(parsed_command);
     }
