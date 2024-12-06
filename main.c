@@ -57,26 +57,24 @@ int main(int argc, char *argv[]){
       int stdout = 1;
       int backup_stdout = dup(stdout);
       char command_copy[100];
-      strcpy(command, command_copy);
+      strcpy(command_copy, command);
 
-      // Redirect output to file with truncating.
-      char * stripped_command = strsep(&command, ">");
-      char * filename = strsep(&command, ">");
+      // Redirect output to file with appending.
+      char * stripped_command = strsep(&command_copy, ">>");
+      char * filename = strsep(&command_copy, ">>");
       char output_redirected = 0;
-      filename++;
       if (filename != NULL){
         output_redirected = 1;
-        int fd1 = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+        int fd1 = open(++filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
         dup2(fd1, stdout);
       }
 
-      // Redirect output to file with appending.
+      // Redirect output to file with truncating.
       if(!output_redirected){
-        char * stripped_command = strsep(&command_copy, ">>");
-        char * filename = strsep(&command_copy, ">>");
-        filename++;
+        char * stripped_command = strsep(&command, ">");
+        char * filename = strsep(&command, ">");
         if (filename != NULL){
-          int fd1 = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
+          int fd1 = open(++filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
           dup2(fd1, stdout);
         }
       }
