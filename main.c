@@ -53,14 +53,13 @@ int main(int argc, char *argv[]){
         break;
       }
 
-      // Redirect to file.
-      char * stripped_command = strsep(&command, " > ");
-      if (command != NULL){ // This means the command includes '>'.
-        int fd1 = open(command, O_WRONLY);
+      // Redirect output to file.
+      char * stripped_command = strsep(&command, ">");
+      char * filename = strsep(&command, ">");
+      if (filename != NULL){
+        int fd1 = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
         int stdout = 1;
         dup2(fd1, stdout);
-      } else {
-        stripped_command = command;
       }
       
       // Parse the command.
