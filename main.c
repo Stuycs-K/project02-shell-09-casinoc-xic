@@ -10,7 +10,7 @@
 #include <errno.h>
 #include "main.h"
 
-void parse_args(char * line, char ** arg_ary){
+int parse_args(char * line, char ** arg_ary){
   char * token;
   char * curr = line;
   token = strsep(&curr, " ");
@@ -24,6 +24,7 @@ void parse_args(char * line, char ** arg_ary){
     arg_ary[i] = token;
     i++;
   }
+  return i;
 }
 
 int main(int argc, char *argv[]){
@@ -52,10 +53,20 @@ int main(int argc, char *argv[]){
         break;
       }
 
+      // Redirect to file.
+      char * stripped_command = strsep(&command, " > ");
+      if (command != NULL){ // This means the command includes '>'.
+        int fd1 = open(command, O_WRONLY);
+        int stdout = 1;
+        dup2(fd1, stdout);
+      } else {
+        stripped_command = command;
+      }
+      
       // Parse the command.
       char ** parsed_command;
       parsed_command = calloc(200, 1);
-      parse_args(command, parsed_command);
+      int args_num = parse_args(stripped_command, parsed_command);
 
       // Handle exiting.
       if(strcmp(parsed_command[0],"exit") == 0){
