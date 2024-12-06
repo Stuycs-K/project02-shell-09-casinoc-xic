@@ -56,28 +56,30 @@ int main(int argc, char *argv[]){
       // Create backup for stdout and command.
       int stdout = 1;
       int backup_stdout = dup(stdout);
-      char command_copy[100];
-      strcpy(command_copy, command);
 
       // Redirect output to file with appending.
-      /* char * stripped_command = strsep(&command_copy, ">>");
-      char * filename = strsep(&command_copy, ">>");
-      char output_redirected = 0;
-      if (filename != NULL){
-        output_redirected = 1;
-        int fd1 = open(++filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
+      char output_redirected = 1;
+      char * filename = strstr(command, ">>");
+      char * stripped_command = command;
+      if(filename != NULL){
+        stripped_command = strsep(&command, ">>");
+        char * last_space = strrchr(command, " ");
+        last_space[0] = NULL;
+        char * stripped_filename = strsep(&stripped_command, " ");
+        int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
         dup2(fd1, stdout);
-      } */
+        output_redirected = 0;
+      }
 
-      // Redirect output to file with truncating.
-      
-        char * stripped_command = strsep(&command, ">");
+      // Redirect output to file with truncating. 
+      if(output_redirected){
+        stripped_command = strsep(&command, ">");
         char * filename = strsep(&command, ">");
         if (filename != NULL){
           int fd1 = open(++filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
           dup2(fd1, stdout);
         }
-      
+      }
       
       // Parse the command.
       char ** parsed_command;
