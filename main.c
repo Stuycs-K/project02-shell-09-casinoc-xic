@@ -53,21 +53,18 @@ int main(int argc, char *argv[]){
         break;
       }
 
-      // Create backup for stdout and command.
-      
+      // Create backup for stdout and stdin.
       int stdout = 1;
       int backup_stdout = dup(stdout);
-
       int stdin = 0;
+      int backup_stdin = dup(stdin);
+
       // Redirect output to file with appending.
-      
       char * stripped_command = command;
-      
       if(strstr(command, ">>") != NULL){
         stripped_command = strsep(&command, ">");
         stripped_command[strlen(stripped_command)-1] = '\0';
-        printf("%s\n", stripped_command);
-        strsep(&command, " "); //goes past operators
+        strsep(&command, " ");
         char * stripped_filename = command;
         int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
         dup2(fd1, stdout);
@@ -77,7 +74,6 @@ int main(int argc, char *argv[]){
       else if(strstr(command, ">") != NULL){
         stripped_command = strsep(&command, ">");
         stripped_command[strlen(stripped_command)-1] = '\0';
-        printf("%s\n", stripped_command);
         strsep(&command, " ");
         char * stripped_filename = command;
         printf("%s\n", stripped_filename);
@@ -86,6 +82,7 @@ int main(int argc, char *argv[]){
           dup2(fd1, stdout);
         }
       }
+
       //pipe redirection
       else if(strstr(command, "|") != NULL){
         stripped_command = strsep(&command, "|");
@@ -93,7 +90,7 @@ int main(int argc, char *argv[]){
         printf("%s\n", stripped_command);
         strsep(&command, " "); 
         char * stripped_filename = command; //right side command
-        int fd1 = open("temp.txt", O_WRONLY | O_CREAT | O_APPEND, 0777);
+        int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
         dup2(fd1, stdout);
         dup2(stdin, fd1);
       }
@@ -130,6 +127,7 @@ int main(int argc, char *argv[]){
         int status;
         wait(&status);
         dup2(backup_stdout, stdout);
+        dup2(backup_stdin, stdin);
       }
       free(parsed_command);
     }
