@@ -59,26 +59,28 @@ int main(int argc, char *argv[]){
       int backup_stdout = dup(stdout);
 
       // Redirect output to file with appending.
-      char output_redirected = 1;
-      char * filename = strstr(command, ">>");
+    //  char output_redirected = 1;
       
       char * stripped_command = command;
       
-      if(filename != NULL){
+      if(strstr(command, ">>") != NULL){
         stripped_command = strsep(&command, " ");
         strsep(&command, " "); //goes past operators
         char * stripped_filename = command;
         int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
         dup2(fd1, stdout);
-        output_redirected = 0;
+      //  output_redirected = 0;
       }
 
       // Redirect output to file with truncating. 
-      if(output_redirected){
-        stripped_command = strsep(&command, ">");
-        char * filename = strsep(&command, ">");
-        if (filename != NULL){
-          int fd1 = open(++filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+      else if(strstr(command, ">") != NULL){
+        stripped_command = strsep(&command, " ");
+        printf("%s\n", stripped_command);
+        strsep(&command, " ");
+        char * stripped_filename = command;
+        printf("%s\n", stripped_filename);
+        if (stripped_filename != NULL){
+          int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
           dup2(fd1, stdout);
         }
       }

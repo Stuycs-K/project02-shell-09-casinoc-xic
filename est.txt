@@ -7,12 +7,3 @@ named
 README.md
 shell
 test.txt
-est.txt
-main.c
-main.h
-main.o
-makefile
-named
-README.md
-shell
-test.txt
