@@ -54,13 +54,16 @@ int main(int argc, char *argv[]){
       }
 
       // Create backup for stdout and command.
+      
       int stdout = 1;
       int backup_stdout = dup(stdout);
 
       // Redirect output to file with appending.
       char output_redirected = 1;
       char * filename = strstr(command, ">>");
+      
       char * stripped_command = command;
+      
       if(filename != NULL){
         stripped_command = strsep(&command, ">>");
         char * last_space = strrchr(command, " ");
