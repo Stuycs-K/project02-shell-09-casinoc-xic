@@ -65,10 +65,9 @@ int main(int argc, char *argv[]){
       char * stripped_command = command;
       
       if(filename != NULL){
-        stripped_command = strsep(&command, ">>");
-        char * last_space = strrchr(command, " ");
-        last_space[0] = NULL;
-        char * stripped_filename = strsep(&stripped_command, " ");
+        stripped_command = strsep(&command, " ");
+        strsep(&command, " "); //goes past operators
+        char * stripped_filename = command;
         int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
         dup2(fd1, stdout);
         output_redirected = 0;
