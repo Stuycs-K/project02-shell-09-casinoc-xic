@@ -59,13 +59,26 @@ int main(int argc, char *argv[]){
       int stdin = 0;
       int backup_stdin = dup(stdin);
 
-      // Handle pipe.
-      int num_commands = 1;
+      // Check if there is a pipe.
+      int is_piped = 0;
       if(strstr(command, "|") != NULL){
-        num_commands = 2;
+        is_piped = 1;
       }
       
-      for(int i = 0; i < num_commands; i++){
+      for(int i = 0; i < is_piped + 1; i++){
+
+        // Redirection is there is a pipe.
+        if(is_piped){
+          if(i == 0){
+            int fd1 = open("pipe_temp", O_WRONLY | O_CREAT | O_TRUNC, 0777);
+            dup2(fd1, stdout);
+          }
+          if(i == 1){
+            int fd1 = open("pipe_temp", O_RDONLY, 0);
+            dup2(fd1, stdin);
+          }
+        }
+ 
         // Redirect output to file with appending.
         char * stripped_command = command;
         if(strstr(command, ">>") != NULL){
