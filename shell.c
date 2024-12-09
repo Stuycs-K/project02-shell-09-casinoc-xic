@@ -10,7 +10,7 @@
 #include <errno.h>
 #include "shell.h"
 
-void pipe(char *cmd1, char *cmd2) {
+void handle_pipe(char *cmd1, char *cmd2) {
     char ** command1;
     command1 = parse_command(cmd1);
 
@@ -19,7 +19,7 @@ void pipe(char *cmd1, char *cmd2) {
 
     int temp_fd = open("temp.txt", O_WRONLY | O_CREAT | O_TRUNC, 0777);
     if (temp_fd == -1) {
-        printf("%s\n", strerror(error));
+        printf("%s\n", strerror(perror));
         return;
     }
 
@@ -38,9 +38,9 @@ void pipe(char *cmd1, char *cmd2) {
     pid_t pid2 = fork();
     if (pid2 == 0) {
         // Second command: Redirect stdin from temp file
-        int input_fd = open("temp.txt", O_RDONLY, 0777);
+        int input_fd = open("temp.txt", O_RDONLY, 0);
         if (input_fd == -1) {
-            printf("%s\n", strerror(error));
+            printf("%s\n", strerror(perror));
             return;
         }
         dup2(input_fd, STDIN_FILENO);
@@ -53,7 +53,7 @@ void pipe(char *cmd1, char *cmd2) {
     waitpid(pid2, &status2, 0);
 
     close(temp_fd);
-    //need to remove file somehow
+    remove("temp.txt");
 }
 
 int parse_args(char * line, char ** arg_ary){

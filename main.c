@@ -10,63 +10,6 @@
 #include <errno.h>
 #include "shell.h"
 
-void pipe(char *cmd1, char *cmd2) {
-    int temp_fd = open("temp.txt", O_WRONLY | O_CREAT | O_TRUNC, 0777);
-    if (temp_fd == -1) {
-        printf("%s\n", strerror(error));
-        return;
-    }
-
-    pid_t pid1 = fork();
-    if (pid1 == 0) {
-        // First command: Redirect stdout to temp file
-        dup2(temp_fd, STDOUT_FILENO);
-        close(temp_fd);
-        execvp(cmd1, cmd1);
-        exit(0); // Execute cmd1
-    }
-
-    int status1;
-    waitpid(pid1, &status1, 0);
-
-    pid_t pid2 = fork();
-    if (pid2 == 0) {
-        // Second command: Redirect stdin from temp file
-        int input_fd = open("temp.txt", O_RDONLY, 0777);
-        if (input_fd == -1) {
-            printf("%s\n", strerror(error));
-            return;
-        }
-        dup2(input_fd, STDIN_FILENO);
-        close(input_fd);
-        close(temp_fd);
-        execvp(cmd2, cmd2); // Execute cmd2
-    }
-
-    int status2;
-    waitpid(pid2, &status2, 0);
-
-    close(temp_fd);
-    unlink(temp_file); // Remove temp file
-}
-
-int parse_args(char * line, char ** arg_ary){
-  char * token;
-  char * curr = line;
-  token = strsep(&curr, " ");
-  arg_ary[0] = token;
-  int i = 1;
-  while(i < 99) {
-    token = strsep(&curr, " ");
-    if(token == NULL){
-      break;
-    }
-    arg_ary[i] = token;
-    i++;
-  }
-  return i;
-}
-
 int main(int argc, char *argv[]){
   while(1){
 
@@ -133,7 +76,7 @@ int main(int argc, char *argv[]){
         printf("%s\n", stripped_command);
         strsep(&command, " "); 
         char * stripped_filename = command; //right side command
-        pipe(stripped_command, stripped_filename);
+        handle_pipe(stripped_command, stripped_filename);
       }
       
       
