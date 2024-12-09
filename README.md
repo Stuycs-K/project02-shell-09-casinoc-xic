@@ -14,4 +14,6 @@
 6. Redirecting using < and > and |
 
 ## Function Headers
-1. int parse_args(char * line, char ** arg_ary);
+1. void handle_pipe(char *cmd1, char *cmd2);
+2. int parse_args(char * line, char ** arg_ary);
+3. char ** parse_command(char * stripped_command);
