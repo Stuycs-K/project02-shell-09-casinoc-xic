@@ -70,16 +70,19 @@ int main(int argc, char *argv[]){
         // Redirection is there is a pipe.
         if(is_piped){
           if(i == 0){
-            int fd1 = open("pipe_temp", O_WRONLY | O_CREAT | O_TRUNC, 0777);
-            dup2(fd1, stdout);
+            printf("piped0\n");
+            int fd3 = open("pipe_temp", O_WRONLY | O_CREAT | O_TRUNC, 0777);
+            dup2(fd3, stdout);
           }
           if(i == 1){
-            int fd1 = open("pipe_temp", O_RDONLY, 0);
-            dup2(fd1, stdin);
+            printf("piped1\n");
+            int fd4 = open("pipe_temp", O_RDONLY, 0);
+            dup2(fd4, stdin);
           }
         }
  
         // Redirect output to file with appending.
+        printf("piped2\n");
         char * stripped_command = command;
         if(strstr(command, ">>") != NULL){
           stripped_command = strsep(&command, ">");
@@ -92,6 +95,7 @@ int main(int argc, char *argv[]){
 
         // Redirect output to file with truncating. 
         else if(strstr(command, ">") != NULL){
+          printf("piped3\n");
           stripped_command = strsep(&command, ">");
           stripped_command[strlen(stripped_command)-1] = '\0';
           strsep(&command, " ");
@@ -102,6 +106,7 @@ int main(int argc, char *argv[]){
 
         // Redirect input from file. 
         else if(strstr(command, "<") != NULL){
+          printf("piped4\n");
           stripped_command = strsep(&command, "<");
           stripped_command[strlen(stripped_command)-1] = '\0';
           strsep(&command, " ");
@@ -111,6 +116,7 @@ int main(int argc, char *argv[]){
         }
     
         // Parse the command.
+        printf("piped5\n");
         char ** parsed_command;
         parsed_command = calloc(200, 1);
         int args_num = parse_args(stripped_command, parsed_command);
@@ -121,12 +127,14 @@ int main(int argc, char *argv[]){
         }
 
         // Switch directories.
+        printf("piped6\n");
         if(strcmp(parsed_command[0], "cd") == 0){ //cd
           printf("cd called\n");
           chdir(parsed_command[1]);
         }
 
         // Run the command with a fork.
+        printf("piped7\n");
         pid_t child = fork();
         if(child < 0){
           perror("fork fail");
@@ -140,12 +148,13 @@ int main(int argc, char *argv[]){
         else{ //parent
           int status;
           wait(&status);
-          dup2(backup_stdout, stdout);
-          dup2(backup_stdin, stdin);
-          remove("pipe_temp");
         }
         free(parsed_command);
+        printf("piped8\n");
+        dup2(backup_stdout, stdout);
+        dup2(backup_stdin, stdin);
       }
+      remove("pipe_temp");
     }
   }
   return 0;
