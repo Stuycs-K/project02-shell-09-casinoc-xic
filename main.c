@@ -63,76 +63,9 @@ int main(int argc, char *argv[]){
       int num_commands = 1;
       if(strstr(command, "|") != NULL){
         num_commands = 2;
+      }
       
-        for(int i = 0; i < num_commands; i++){
-          // Redirect output to file with appending.
-          char * stripped_command = command;
-          if(strstr(command, ">>") != NULL){
-            stripped_command = strsep(&command, ">");
-            stripped_command[strlen(stripped_command)-1] = '\0';
-            strsep(&command, " ");
-            char * stripped_filename = command;
-            int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
-            dup2(fd1, stdout);
-          }
-
-          // Redirect output to file with truncating. 
-          else if(strstr(command, ">") != NULL){
-            stripped_command = strsep(&command, ">");
-            stripped_command[strlen(stripped_command)-1] = '\0';
-            strsep(&command, " ");
-            char * stripped_filename = command;
-            int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-            dup2(fd1, stdout);
-          }
-
-          // Redirect input from file. 
-          else if(strstr(command, "<") != NULL){
-            stripped_command = strsep(&command, "<");
-            stripped_command[strlen(stripped_command)-1] = '\0';
-            strsep(&command, " ");
-            char * stripped_filename = command;
-            int fd1 = open(stripped_filename, O_RDONLY, 0);
-            dup2(fd1, stdin);
-          }
-      
-          // Parse the command.
-          char ** parsed_command;
-          parsed_command = calloc(200, 1);
-          int args_num = parse_args(stripped_command, parsed_command);
-
-          // Handle exiting.
-          if(strcmp(parsed_command[0],"exit") == 0){
-            exit(0);
-          }
-
-          // Switch directories.
-          if(strcmp(parsed_command[0], "cd") == 0){ //cd
-            printf("cd called\n");
-            chdir(parsed_command[1]);
-          }
-
-          // Run the command with a fork.
-          pid_t child = fork();
-          if(child < 0){
-            perror("fork fail");
-            exit(1);
-          }
-          else if(child == 0){ //child command
-            execvp(parsed_command[0], parsed_command);
-            exit(0);
-          }
-
-          else{ //parent
-            int status;
-            wait(&status);
-            dup2(backup_stdout, stdout);
-            dup2(backup_stdin, stdin);
-            remove("pipe_temp");
-          }
-          free(parsed_command);
-        }
-      } else {
+      for(int i = 0; i < num_commands; i++){
         // Redirect output to file with appending.
         char * stripped_command = command;
         if(strstr(command, ">>") != NULL){
