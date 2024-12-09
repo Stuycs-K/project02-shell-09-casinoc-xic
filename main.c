@@ -76,10 +76,21 @@ int main(int argc, char *argv[]){
         stripped_command[strlen(stripped_command)-1] = '\0';
         strsep(&command, " ");
         char * stripped_filename = command;
-        printf("%s\n", stripped_filename);
         if (stripped_filename != NULL){
           int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
           dup2(fd1, stdout);
+        }
+      }
+
+      // Redirect input from file. 
+      else if(strstr(command, "<") != NULL){
+        stripped_command = strsep(&command, "<");
+        stripped_command[strlen(stripped_command)-1] = '\0';
+        strsep(&command, " ");
+        char * stripped_filename = command;
+        if (stripped_filename != NULL){
+          int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+          dup2(stdin, fd1);
         }
       }
 
@@ -87,7 +98,7 @@ int main(int argc, char *argv[]){
       else if(strstr(command, "|") != NULL){
         stripped_command = strsep(&command, "|");
         stripped_command[strlen(stripped_command)-1] = '\0';
-        printf("%s\n", stripped_command);
+        
         strsep(&command, " "); 
         char * stripped_filename = command; //right side command
         int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
