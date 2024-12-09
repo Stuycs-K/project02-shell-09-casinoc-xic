@@ -17,3 +17,6 @@
 1. void handle_pipe(char *cmd1, char *cmd2);
 2. int parse_args(char * line, char ** arg_ary);
 3. char ** parse_command(char * stripped_command);
+
+## Bugs
+1. The | does not work with the ;
