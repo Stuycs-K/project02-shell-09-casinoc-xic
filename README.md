@@ -20,3 +20,4 @@
 
 ## Bugs
 1. The | does not work with the ;
+2. You cannot use the < or > with the | simutaneously
