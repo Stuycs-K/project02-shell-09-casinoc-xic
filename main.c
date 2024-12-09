@@ -44,18 +44,6 @@ int main(int argc, char *argv[]){
     input[strlen(input)-1] = '\0';
     char * command;
 
-    // Handle pipe.
-    /* if(strstr(command, "|") != NULL){
-      char * first_command = strsep(&command, "|");
-      first_command[strlen(first_command)-1] = '\0';
-      strsep(&command, " ");
-      char * second_command = command;
-      strcpy(command, first_command);
-      strcat(command, " > pipe_temp;");
-      strcat(command, second_command);
-      strcat(command, " < pipe_temp");
-    } */
-
     // Loop through commands and break if command is NULL.
     while(1){
 
@@ -71,9 +59,23 @@ int main(int argc, char *argv[]){
       int stdin = 0;
       int backup_stdin = dup(stdin);
 
+      // Handle pipe.
+      if(strstr(command, "|") != NULL){
+        char * first_command = strsep(&command, "|");
+        first_command[strlen(first_command)-1] = '\0';
+        strsep(&command, " ");
+        char second_command[200];
+        strcpy(second_command, command);
+        strcpy(command, first_command);
+        strcat(command, " > pipe_temp;");
+        strcat(command, second_command);
+        strcat(command, " < pipe_temp");
+        printf("start-%s-stop\n", command);
+      }
+
       // Redirect output to file with appending.
       char * stripped_command = command;
-      if(strstr(command, ">>") != NULL){
+     if(strstr(command, ">>") != NULL){
         stripped_command = strsep(&command, ">");
         stripped_command[strlen(stripped_command)-1] = '\0';
         strsep(&command, " ");
@@ -134,6 +136,7 @@ int main(int argc, char *argv[]){
         wait(&status);
         dup2(backup_stdout, stdout);
         dup2(backup_stdin, stdin);
+        remove("pipe_temp");
       }
       free(parsed_command);
     }
