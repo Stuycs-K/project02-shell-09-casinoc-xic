@@ -11,7 +11,7 @@
 3. Multiple commands separated by semicolons
 4. Changing directories using cd
 5. Exiting using both the exit command and the CTRL-D signal
-6. Redirecting using < and >
+6. Redirecting using < and > and |
 
 ## Function Headers
 1. int parse_args(char * line, char ** arg_ary);
