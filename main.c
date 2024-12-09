@@ -60,85 +60,146 @@ int main(int argc, char *argv[]){
       int backup_stdin = dup(stdin);
 
       // Handle pipe.
+      int num_commands = 1;
       if(strstr(command, "|") != NULL){
-        char * first_command = strsep(&command, "|");
-        first_command[strlen(first_command)-1] = '\0';
-        strsep(&command, " ");
-        char second_command[200];
-        strcpy(second_command, command);
-        strcpy(command, first_command);
-        strcat(command, " > pipe_temp;");
-        strcat(command, second_command);
-        strcat(command, " < pipe_temp");
-        printf("start-%s-stop\n", command);
-      }
-
-      // Redirect output to file with appending.
-      char * stripped_command = command;
-     if(strstr(command, ">>") != NULL){
-        stripped_command = strsep(&command, ">");
-        stripped_command[strlen(stripped_command)-1] = '\0';
-        strsep(&command, " ");
-        char * stripped_filename = command;
-        int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
-        dup2(fd1, stdout);
-      }
-
-      // Redirect output to file with truncating. 
-      else if(strstr(command, ">") != NULL){
-        stripped_command = strsep(&command, ">");
-        stripped_command[strlen(stripped_command)-1] = '\0';
-        strsep(&command, " ");
-        char * stripped_filename = command;
-        int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-        dup2(fd1, stdout);
-      }
-
-      // Redirect input from file. 
-      else if(strstr(command, "<") != NULL){
-        stripped_command = strsep(&command, "<");
-        stripped_command[strlen(stripped_command)-1] = '\0';
-        strsep(&command, " ");
-        char * stripped_filename = command;
-        int fd1 = open(stripped_filename, O_RDONLY, 0);
-        dup2(fd1, stdin);
-      }
+        num_commands = 2;
       
-      // Parse the command.
-      char ** parsed_command;
-      parsed_command = calloc(200, 1);
-      int args_num = parse_args(stripped_command, parsed_command);
+        for(int i = 0; i < num_commands; i++){
+          // Redirect output to file with appending.
+          char * stripped_command = command;
+          if(strstr(command, ">>") != NULL){
+            stripped_command = strsep(&command, ">");
+            stripped_command[strlen(stripped_command)-1] = '\0';
+            strsep(&command, " ");
+            char * stripped_filename = command;
+            int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
+            dup2(fd1, stdout);
+          }
 
-      // Handle exiting.
-      if(strcmp(parsed_command[0],"exit") == 0){
-        exit(0);
-      }
+          // Redirect output to file with truncating. 
+          else if(strstr(command, ">") != NULL){
+            stripped_command = strsep(&command, ">");
+            stripped_command[strlen(stripped_command)-1] = '\0';
+            strsep(&command, " ");
+            char * stripped_filename = command;
+            int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+            dup2(fd1, stdout);
+          }
 
-      // Switch directories.
-      if(strcmp(parsed_command[0], "cd") == 0){ //cd
-        printf("cd called\n");
-        chdir(parsed_command[1]);
-      }
+          // Redirect input from file. 
+          else if(strstr(command, "<") != NULL){
+            stripped_command = strsep(&command, "<");
+            stripped_command[strlen(stripped_command)-1] = '\0';
+            strsep(&command, " ");
+            char * stripped_filename = command;
+            int fd1 = open(stripped_filename, O_RDONLY, 0);
+            dup2(fd1, stdin);
+          }
+      
+          // Parse the command.
+          char ** parsed_command;
+          parsed_command = calloc(200, 1);
+          int args_num = parse_args(stripped_command, parsed_command);
 
-      // Run the command with a fork.
-      pid_t child = fork();
-      if(child < 0){
-        perror("fork fail");
-        exit(1);
-      }
-      else if(child == 0){ //child command
-        execvp(parsed_command[0], parsed_command);
-        exit(0);
-      }
+          // Handle exiting.
+          if(strcmp(parsed_command[0],"exit") == 0){
+            exit(0);
+          }
 
-      else{ //parent
-        int status;
-        wait(&status);
-        dup2(backup_stdout, stdout);
-        dup2(backup_stdin, stdin);
-        remove("pipe_temp");
+          // Switch directories.
+          if(strcmp(parsed_command[0], "cd") == 0){ //cd
+            printf("cd called\n");
+            chdir(parsed_command[1]);
+          }
+
+          // Run the command with a fork.
+          pid_t child = fork();
+          if(child < 0){
+            perror("fork fail");
+            exit(1);
+          }
+          else if(child == 0){ //child command
+            execvp(parsed_command[0], parsed_command);
+            exit(0);
+          }
+
+          else{ //parent
+            int status;
+            wait(&status);
+            dup2(backup_stdout, stdout);
+            dup2(backup_stdin, stdin);
+            remove("pipe_temp");
+          }
+          free(parsed_command);
+        }
+      } else {
+        // Redirect output to file with appending.
+        char * stripped_command = command;
+        if(strstr(command, ">>") != NULL){
+          stripped_command = strsep(&command, ">");
+          stripped_command[strlen(stripped_command)-1] = '\0';
+          strsep(&command, " ");
+          char * stripped_filename = command;
+          int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
+          dup2(fd1, stdout);
+        }
+
+        // Redirect output to file with truncating. 
+        else if(strstr(command, ">") != NULL){
+          stripped_command = strsep(&command, ">");
+          stripped_command[strlen(stripped_command)-1] = '\0';
+          strsep(&command, " ");
+          char * stripped_filename = command;
+          int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+          dup2(fd1, stdout);
+        }
+
+        // Redirect input from file. 
+        else if(strstr(command, "<") != NULL){
+          stripped_command = strsep(&command, "<");
+          stripped_command[strlen(stripped_command)-1] = '\0';
+          strsep(&command, " ");
+          char * stripped_filename = command;
+          int fd1 = open(stripped_filename, O_RDONLY, 0);
+          dup2(fd1, stdin);
+        }
+    
+        // Parse the command.
+        char ** parsed_command;
+        parsed_command = calloc(200, 1);
+        int args_num = parse_args(stripped_command, parsed_command);
+
+        // Handle exiting.
+        if(strcmp(parsed_command[0],"exit") == 0){
+          exit(0);
+        }
+
+        // Switch directories.
+        if(strcmp(parsed_command[0], "cd") == 0){ //cd
+          printf("cd called\n");
+          chdir(parsed_command[1]);
+        }
+
+        // Run the command with a fork.
+        pid_t child = fork();
+        if(child < 0){
+          perror("fork fail");
+          exit(1);
+        }
+        else if(child == 0){ //child command
+          execvp(parsed_command[0], parsed_command);
+          exit(0);
+        }
+
+        else{ //parent
+          int status;
+          wait(&status);
+          dup2(backup_stdout, stdout);
+          dup2(backup_stdin, stdin);
+          remove("pipe_temp");
+        }
+        free(parsed_command);
       }
-      free(parsed_command);
     }
   }
   return 0;
