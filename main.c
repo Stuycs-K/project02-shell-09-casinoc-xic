@@ -64,13 +64,14 @@ int main(int argc, char *argv[]){
       if(strstr(command, "|") != NULL){
         is_piped = 1;
       }
-      
+
       for(int i = 0; i < is_piped + 1; i++){
 
+        printf("I: %d\n", i);
         // Redirection is there is a pipe.
-        if(is_piped){
-          char * command_ptr = command;
-          char * sub_command;
+        char * command_ptr = command;
+        char * sub_command;
+        if(is_piped){          
           if(i == 0){
             sub_command = strsep(&command_ptr, "|");
             sub_command[strlen(sub_command) - 1] = '\0';
@@ -85,6 +86,8 @@ int main(int argc, char *argv[]){
             int fd4 = open("pipe_temp", O_RDONLY, 0);
             dup2(fd4, stdin);
           }
+        } else {
+          sub_command = command;
         }
  
         // Redirect output to file with appending.
