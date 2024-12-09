@@ -40,17 +40,15 @@ int main(int argc, char *argv[]){
       
       int stdout = 1;
       int backup_stdout = dup(stdout);
-
       int stdin = 0;
+      int backup_stdin = dup(stdin);
+
       // Redirect output to file with appending.
-      
       char * stripped_command = command;
-      
       if(strstr(command, ">>") != NULL){
         stripped_command = strsep(&command, ">");
         stripped_command[strlen(stripped_command)-1] = '\0';
-        printf("%s\n", stripped_command);
-        strsep(&command, " "); //goes past operators
+        strsep(&command, " ");
         char * stripped_filename = command;
         int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
         dup2(fd1, stdout);
@@ -60,23 +58,30 @@ int main(int argc, char *argv[]){
       else if(strstr(command, ">") != NULL){
         stripped_command = strsep(&command, ">");
         stripped_command[strlen(stripped_command)-1] = '\0';
-        printf("%s\n", stripped_command);
         strsep(&command, " ");
         char * stripped_filename = command;
-        printf("%s\n", stripped_filename);
-        if (stripped_filename != NULL){
-          int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-          dup2(fd1, stdout);
-        }
-      } // return stripped_command
+        int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+        dup2(fd1, stdout);
+      }
+
+      // Redirect input from file. 
+      else if(strstr(command, "<") != NULL){
+        stripped_command = strsep(&command, "<");
+        stripped_command[strlen(stripped_command)-1] = '\0';
+        strsep(&command, " ");
+        char * stripped_filename = command;
+        int fd1 = open(stripped_filename, O_RDONLY, 0);
+        dup2(fd1, stdin);
+      }
+
       //pipe redirection
       else if(strstr(command, "|") != NULL){
         stripped_command = strsep(&command, "|");
         stripped_command[strlen(stripped_command)-1] = '\0';
-        printf("%s\n", stripped_command);
         strsep(&command, " "); 
         char * stripped_filename = command; //right side command
         handle_pipe(stripped_command, stripped_filename);
+        break;
       }
       
       
@@ -91,7 +96,6 @@ int main(int argc, char *argv[]){
 
       // Switch directories.
       if(strcmp(parsed_command[0], "cd") == 0){ //cd
-        printf("cd called\n");
         chdir(parsed_command[1]);
       }
 
@@ -110,6 +114,7 @@ int main(int argc, char *argv[]){
         int status;
         wait(&status);
         dup2(backup_stdout, stdout);
+        dup2(backup_stdin, stdin);
       }
       free(parsed_command);
     }
