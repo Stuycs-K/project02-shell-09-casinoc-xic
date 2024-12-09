@@ -44,6 +44,18 @@ int main(int argc, char *argv[]){
     input[strlen(input)-1] = '\0';
     char * command;
 
+    // Handle pipe.
+    /* if(strstr(command, "|") != NULL){
+      char * first_command = strsep(&command, "|");
+      first_command[strlen(first_command)-1] = '\0';
+      strsep(&command, " ");
+      char * second_command = command;
+      strcpy(command, first_command);
+      strcat(command, " > pipe_temp;");
+      strcat(command, second_command);
+      strcat(command, " < pipe_temp");
+    } */
+
     // Loop through commands and break if command is NULL.
     while(1){
 
@@ -76,10 +88,8 @@ int main(int argc, char *argv[]){
         stripped_command[strlen(stripped_command)-1] = '\0';
         strsep(&command, " ");
         char * stripped_filename = command;
-        if (stripped_filename != NULL){
-          int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-          dup2(fd1, stdout);
-        }
+        int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+        dup2(fd1, stdout);
       }
 
       // Redirect input from file. 
@@ -88,24 +98,9 @@ int main(int argc, char *argv[]){
         stripped_command[strlen(stripped_command)-1] = '\0';
         strsep(&command, " ");
         char * stripped_filename = command;
-        if (stripped_filename != NULL){
-          int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-          dup2(stdin, fd1);
-        }
+        int fd1 = open(stripped_filename, O_RDONLY, 0);
+        dup2(fd1, stdin);
       }
-
-      //pipe redirection
-      else if(strstr(command, "|") != NULL){
-        stripped_command = strsep(&command, "|");
-        stripped_command[strlen(stripped_command)-1] = '\0';
-        
-        strsep(&command, " "); 
-        char * stripped_filename = command; //right side command
-        int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
-        dup2(fd1, stdout);
-        dup2(stdin, fd1);
-      }
-      
       
       // Parse the command.
       char ** parsed_command;
