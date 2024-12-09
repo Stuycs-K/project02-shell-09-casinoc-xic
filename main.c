@@ -69,12 +69,18 @@ int main(int argc, char *argv[]){
 
         // Redirection is there is a pipe.
         if(is_piped){
+          char * command_ptr = command;
+          char * sub_command;
           if(i == 0){
+            sub_command = strsep(&command_ptr, "|");
+            sub_command[strlen(sub_command) - 1] = '\0';
             printf("piped0\n");
             int fd3 = open("pipe_temp", O_WRONLY | O_CREAT | O_TRUNC, 0777);
             dup2(fd3, stdout);
           }
-          if(i == 1){
+          if(i == 1){   
+            strsep(&command_ptr, " ");
+            sub_command = command_ptr;
             printf("piped1\n");
             int fd4 = open("pipe_temp", O_RDONLY, 0);
             dup2(fd4, stdin);
@@ -94,23 +100,23 @@ int main(int argc, char *argv[]){
         }
 
         // Redirect output to file with truncating. 
-        else if(strstr(command, ">") != NULL){
+        else if(strstr(sub_command, ">") != NULL){
           printf("piped3\n");
-          stripped_command = strsep(&command, ">");
+          stripped_command = strsep(&sub_command, ">");
           stripped_command[strlen(stripped_command)-1] = '\0';
-          strsep(&command, " ");
-          char * stripped_filename = command;
+          strsep(&sub_command, " ");
+          char * stripped_filename = sub_command;
           int fd1 = open(stripped_filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
           dup2(fd1, stdout);
         }
 
         // Redirect input from file. 
-        else if(strstr(command, "<") != NULL){
+        else if(strstr(sub_command, "<") != NULL){
           printf("piped4\n");
-          stripped_command = strsep(&command, "<");
+          stripped_command = strsep(&sub_command, "<");
           stripped_command[strlen(stripped_command)-1] = '\0';
-          strsep(&command, " ");
-          char * stripped_filename = command;
+          strsep(&sub_command, " ");
+          char * stripped_filename = sub_command;
           int fd1 = open(stripped_filename, O_RDONLY, 0);
           dup2(fd1, stdin);
         }
@@ -154,7 +160,7 @@ int main(int argc, char *argv[]){
         dup2(backup_stdout, stdout);
         dup2(backup_stdin, stdin);
       }
-      remove("pipe_temp");
+      //remove("pipe_temp");
     }
   }
   return 0;
